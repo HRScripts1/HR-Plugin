@@ -4,29 +4,33 @@ name: Build HR Plugin
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, master]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '25'
-          cache: maven
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Extract source
         run: unzip -q HR-Plugin-Source.zip
+
+      - name: Setup Java 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
 
       - name: Build plugin
         run: |
           cd HR-Plugin
           mvn --batch-mode package
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
         with:
           name: HR-Plugin-JAR
           path: HR-Plugin/target/*.jar
+
