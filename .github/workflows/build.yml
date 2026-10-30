@@ -9,28 +9,40 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Extract source
         run: unzip -q HR-Plugin-Source.zip
 
-      - name: Setup Java 25
+      - name: Setup Java
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '25'
 
+      - name: Create default config
+        run: |
+          mkdir -p HR-Plugin/src/main/resources
+          cat > HR-Plugin/src/main/resources/config.yml <<'EOF'
+          spawn: ''
+          sell-prices:
+            IRON_INGOT: 2
+            GOLD_INGOT: 5
+            DIAMOND: 20
+          limits:
+            max-entities-per-chunk: 80
+          EOF
+
       - name: Build plugin
         run: |
           cd HR-Plugin
-          mvn --batch-mode package
+          mvn --batch-mode clean package
 
-      - name: Upload JAR
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: HR-Plugin-JAR
           path: HR-Plugin/target/*.jar
+
+
 
